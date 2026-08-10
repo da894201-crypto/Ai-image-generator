@@ -14,7 +14,7 @@ st.set_page_config(
 PRO_PASSWORD = "UNLIMITED2026"
 
 # 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK 🔴
-ADSTERRA_DIRECT_LINK ="https://www.effectivecpmnetwork.com/bddtwc4trq?key=c8df253f413fc52130a1b950d8b5bd1d"
+ADSTERRA_DIRECT_LINK ="https://www.effectivecpmnetwork.com/vqwptfhf7e?key=387fee6ebf196f7838452f5a26520fb4"
 
 # --- CHECK AUTOMATED UNLOCK PARAMETER ---
 query_params = st.query_params
@@ -257,7 +257,7 @@ if can_generate:
                         st.rerun()
                     else:
                         st.error("Server busy, try again.")
-                except Exception as e:
+                e xcept Exception as e:
                     st.error(f"Error: {e}")
         else:
             st.warning("Please type a description first!")
