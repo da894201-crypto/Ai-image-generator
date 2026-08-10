@@ -1,8 +1,8 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import urllib.parse
 import requests
 import os
-import time
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -14,6 +14,11 @@ st.set_page_config(
 PRO_PASSWORD = "UNLIMITED2026"
 ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/vqwptfhf7e?key=387fee6ebf196f7838452f5a26520fb4"
 
+# --- CHECK UNLOCK URL PARAMETER ---
+query_params = st.query_params
+if query_params.get("unlocked") == "true":
+    st.session_state.is_locked = False
+
 # --- SESSION STATE INITIALIZATION ---
 if "generations_left" not in st.session_state:
     st.session_state.generations_left = 3
@@ -23,8 +28,6 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
-if "reveal_verify" not in st.session_state:
-    st.session_state.reveal_verify = False
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -79,7 +82,6 @@ if can_generate:
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
                             st.session_state.is_locked = True
-                            st.session_state.reveal_verify = False
                         st.rerun()
                     else:
                         st.error("Server busy, please try clicking generate again.")
@@ -98,25 +100,46 @@ if os.path.exists("temp_art.png"):
     if st.session_state.is_locked:
         st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
         
-        # Step 1: Direct link button to open the sponsor page
-        st.link_button("1️⃣ Tap Here to Visit Sponsor Link 🔗", ADSTERRA_DIRECT_LINK, use_container_width=True)
-        
-        st.write("")
-        
-        # Intermediate button: Clicking this makes the final verify button appear
-        if not st.session_state.reveal_verify:
-            if st.button("I've visited the link — Click to Continue ✅", use_container_width=True):
-                st.session_state.reveal_verify = True
-                st.rerun()
-        
-        # Final Verify Button (Invisible until the step above is completed)
-        if st.session_state.reveal_verify:
-            if st.button("2️⃣ Verify & Unlock Artwork ✨", type="primary", use_container_width=True):
-                with st.spinner("Verifying sponsor visit... Please wait 5 seconds."):
-                    time.sleep(5)
-                st.session_state.is_locked = False
-                st.session_state.reveal_verify = False
-                st.rerun()
+        ad_locker_html = """
+        <div style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 10px;">
+            <a id="step1-btn" href="REPLACE_LINK" target="_blank" onclick="startUnlock()"
+               style="display: block; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; box-sizing: border-box; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);">
+                1️⃣ Tap Here to Visit Sponsor Link 🔗
+            </a>
+
+            <div id="step2-container" style="display: none;">
+                <a id="step2-btn" href="?unlocked=true" target="_parent"
+                   style="display: block; width: 100%; background: #334155; color: #64748b; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; box-sizing: border-box; pointer-events: none;">
+                    ⏳ Please wait 5 seconds...
+                </a>
+            </div>
+        </div>
+
+        <script>
+            function startUnlock() {
+                var container = document.getElementById('step2-container');
+                var btn2 = document.getElementById('step2-btn');
+                container.style.display = 'block';
+                
+                var countdown = 5;
+                var timer = setInterval(function() {
+                    countdown--;
+                    if (countdown > 0) {
+                        btn2.innerHTML = '⏳ Please wait ' + countdown + ' seconds...';
+                    } else {
+                        clearInterval(timer);
+                        btn2.innerHTML = '2️⃣ Verify & Unlock Artwork ✨';
+                        btn2.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
+                        btn2.style.color = '#ffffff';
+                        btn2.style.pointerEvents = 'auto';
+                        btn2.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+                    }
+                }, 1000);
+            }
+        </script>
+        """.replace("REPLACE_LINK", ADSTERRA_DIRECT_LINK)
+
+        components.html(ad_locker_html, height=160)
     else:
         with open("temp_art.png", "rb") as file:
             img_bytes = file.read()
