@@ -149,6 +149,8 @@ if "generated_image_bytes" not in st.session_state:
     st.session_state.generated_image_bytes = None
 if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
+if "trigger_ad" not in st.session_state:
+    st.session_state.trigger_ad = False
 
 # --- SIDEBAR UI ---
 with st.sidebar:
@@ -225,12 +227,22 @@ def show_ad_modal():
     st.markdown("<h2 style='text-align: center; color: #ff4b4b; margin-bottom: 5px;'>📺 SPONSORED AD BREAK</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #94a3b8;'>Your high-resolution AI image is generating in the background...</p>", unsafe_allow_html=True)
     
+    # Properly wrapped HTML document for strict ad-network scripts inside iframes
     ad_code = """
-    <div style="text-align:center; padding: 20px;">
-        <script src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { margin: 0; padding: 0; background-color: transparent; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
+    </body>
+    </html>
     """
-    components.html(ad_code, height=300)
+    components.html(ad_code, height=310, scrolling=False)
     
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -242,9 +254,12 @@ def show_ad_modal():
         progress_bar.progress(progress)
         status_text.markdown(f"<h3 style='text-align: center; color: #38bdf8; margin-top: 10px;'>⏳ Unlocking in {wait_time - (i + 1)}s...</h3>", unsafe_allow_html=True)
     
-    status_text.empty()
-    progress_bar.empty()
+    st.session_state.trigger_ad = False
     st.rerun()
+
+# --- TRIGGER DIALOG FROM STATE ---
+if st.session_state.trigger_ad:
+    show_ad_modal()
 
 # --- MAIN APP HEADER ---
 st.markdown("""
@@ -292,7 +307,8 @@ if can_generate:
                         
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
-                            show_ad_modal()
+                            st.session_state.trigger_ad = True
+                            st.rerun()
                         else:
                             st.rerun()
                     else:
