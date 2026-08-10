@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 PRO_PASSWORD = "UNLIMITED2026"
-ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
+ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/vqwptfhf7e?key=387fee6ebf196f7838452f5a26520fb4"
 
 # --- SESSION STATE INITIALIZATION ---
 if "generations_left" not in st.session_state:
@@ -23,8 +23,8 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
-if "step1_activated" not in st.session_state:
-    st.session_state.step1_activated = False
+if "link_clicked" not in st.session_state:
+    st.session_state.link_clicked = False
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -79,7 +79,7 @@ if can_generate:
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
                             st.session_state.is_locked = True
-                            st.session_state.step1_activated = False
+                            st.session_state.link_clicked = False
                         st.rerun()
                     else:
                         st.error("Server busy, please try clicking generate again.")
@@ -98,22 +98,22 @@ if os.path.exists("temp_art.png"):
     if st.session_state.is_locked:
         st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
         
-        # Step 1: User must click this button first to unlock Step 2
-        if not st.session_state.step1_activated:
-            if st.button("1️⃣ Tap Here to Prepare Sponsor Link", use_container_width=True):
-                st.session_state.step1_activated = True
+        # Step 1: Direct link button taking them straight to the sponsor URL
+        st.link_button("1️⃣ Tap Here to Visit Sponsor Link 🔗", ADSTERRA_DIRECT_LINK, use_container_width=True)
+        
+        st.write("")
+        
+        # Step 2 Appears after they return and click this button
+        if not st.session_state.link_clicked:
+            if st.button("I've visited the link — Show Unlock Button 🔓", use_container_width=True):
+                st.session_state.link_clicked = True
                 st.rerun()
         else:
-            # Step 2: Only reveals itself AFTER Step 1 has been clicked
-            st.link_button("🔗 Click Here to Open Sponsor Page", ADSTERRA_DIRECT_LINK, use_container_width=True)
-            
-            st.write("")
-            
             if st.button("2️⃣ Verify & Unlock Artwork ✨", type="primary", use_container_width=True):
                 with st.spinner("Verifying sponsor visit... Please wait 5 seconds."):
                     time.sleep(5)
                 st.session_state.is_locked = False
-                st.session_state.step1_activated = False
+                st.session_state.link_clicked = False
                 st.rerun()
     else:
         with open("temp_art.png", "rb") as file:
