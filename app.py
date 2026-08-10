@@ -24,14 +24,14 @@ st.markdown("""
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    /* HIDE "Press Enter to apply" INSTRUCTION HINTS */
+    /* HIDE INSTRUCTION HINTS ("Press Enter to apply") */
     div[data-testid="stWidgetInstructions"], 
     small[data-testid="stWidgetInstructions"],
     [data-testid="InputInstructions"] {
         display: none !important;
     }
 
-    /* Header Styling */
+    /* Main Header Styling */
     .header-box {
         text-align: center;
         padding: 2.2rem 1.2rem 1.2rem 1.2rem;
@@ -90,7 +90,7 @@ st.markdown("""
         color: #cbd5e1 !important;
     }
 
-    /* Modern Gradient Action Button */
+    /* Modern Buttons */
     .stButton > button {
         width: 100%;
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
@@ -98,22 +98,44 @@ st.markdown("""
         border: none !important;
         border-radius: 12px !important;
         font-weight: 700 !important;
-        font-size: 16px !important;
-        padding: 0.8rem 1.5rem !important;
-        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35) !important;
+        font-size: 15px !important;
+        padding: 0.75rem 1.2rem !important;
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3) !important;
         transition: all 0.2s ease-in-out !important;
     }
 
     .stButton > button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 12px 25px rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 12px 25px rgba(99, 102, 241, 0.45) !important;
         background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
     }
 
-    /* Sidebar Styling */
+    /* --- SIDEBAR STYLING --- */
     section[data-testid="stSidebar"] {
-        background-color: #0b0f19;
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, #0b0f19 0%, #05070d 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .sidebar-card {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .credit-badge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: #e2e8f0;
+        font-weight: 600;
+        font-size: 0.95rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -128,18 +150,42 @@ if "generated_image_bytes" not in st.session_state:
 if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 
-# --- SIDEBAR ---
+# --- SIDEBAR UI ---
 with st.sidebar:
-    st.image("https://img.icons8.com/3d-fluency/94/sparkles.png", width=55)
-    st.title("PixelForge Pro")
+    st.markdown("""
+    <div style="text-align: center; padding: 1rem 0 1.5rem 0;">
+        <img src="https://img.icons8.com/3d-fluency/94/sparkles.png" width="55" style="margin-bottom: 8px;">
+        <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, #a855f7, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PixelForge Pro</h2>
+    </div>
+    """, unsafe_allow_html=True)
     
     if st.session_state.is_pro:
-        st.success("🌟 **Pro Active** (Unlimited & No Ads)")
+        st.markdown("""
+        <div class="sidebar-card" style="border-color: rgba(34, 197, 94, 0.4); background: rgba(34, 197, 94, 0.08); text-align: center;">
+            <div style="color: #4ade80; font-weight: 800; font-size: 1.05rem;">🌟 PRO ACTIVE</div>
+            <div style="color: #94a3b8; font-size: 0.82rem; margin-top: 4px;">Unlimited Generations • No Ads</div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.info(f"⚡ Free Credits: **{st.session_state.generations_left} remaining**")
-        st.write("---")
-        st.subheader("🔑 Unlock Pro Access")
-        passcode_input = st.text_input("Enter Passcode:", type="password", key="sidebar_passcode_input")
+        st.markdown(f"""
+        <div class="credit-badge">
+            <span>⚡ Free Credits</span>
+            <span style="background: #6366f1; color: #ffffff; padding: 3px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">{st.session_state.generations_left} Left</span>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+        
+        st.markdown('<div class="sidebar-card">', unsafe_allow_html=True)
+        st.markdown("""
+        <div style="font-weight: 700; font-size: 0.95rem; color: #f1f5f9; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 6px;">
+            🔑 Unlock Pro Access
+        </div>
+        """, unsafe_allow_html=True)
+        
+        passcode_input = st.text_input("Passcode", type="password", key="sidebar_passcode_input", label_visibility="collapsed", placeholder="Enter passcode...")
+        
+        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
         if st.button("Activate Passcode", key="sidebar_passcode_btn"):
             if passcode_input == PRO_PASSWORD:
                 st.session_state.is_pro = True
@@ -147,6 +193,7 @@ with st.sidebar:
                 st.rerun()
             else:
                 st.error("Invalid key.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- FULL-SCREEN AD OVERLAY MODAL ---
 @st.dialog(" ", width="large")
