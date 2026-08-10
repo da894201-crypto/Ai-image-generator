@@ -1,8 +1,8 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import urllib.parse
 import requests
 import os
+import time
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -14,11 +14,6 @@ st.set_page_config(
 PRO_PASSWORD = "UNLIMITED2026"
 ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/vqwptfhf7e?key=387fee6ebf196f7838452f5a26520fb4"
 
-# --- CHECK UNLOCK URL PARAMETER ---
-query_params = st.query_params
-if query_params.get("unlocked") == "true":
-    st.session_state.is_locked = False
-
 # --- SESSION STATE INITIALIZATION ---
 if "generations_left" not in st.session_state:
     st.session_state.generations_left = 3
@@ -28,6 +23,8 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
+if "link_visited" not in st.session_state:
+    st.session_state.link_visited = False
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -82,6 +79,7 @@ if can_generate:
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
                             st.session_state.is_locked = True
+                            st.session_state.link_visited = False
                         st.rerun()
                     else:
                         st.error("Server busy, please try clicking generate again.")
@@ -98,18 +96,26 @@ if os.path.exists("temp_art.png"):
     st.subheader("🖼️ Your Generated Artwork")
     
     if st.session_state.is_locked:
-        st.info("🔓 **Image Locked:** Tap the button below to view the sponsor link and instantly unlock your image:")
+        st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
         
-        single_button_html = """
-        <div style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 10px;">
-            <a href="?unlocked=true" onclick="window.open('REPLACE_LINK', '_blank');"
-               style="display: block; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 17px; box-sizing: border-box; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
-                🔓 Tap Here to Support & Unlock Image ✨
-            </a>
-        </div>
-        """.replace("REPLACE_LINK", ADSTERRA_DIRECT_LINK)
-
-        components.html(single_button_html, height=90)
+        # Step 1: Native link button (Guaranteed not to be blocked by mobile browsers)
+        st.link_button("1️⃣ Tap Here to Visit Sponsor Link 🔗", ADSTERRA_DIRECT_LINK, use_container_width=True)
+        
+        st.write("")
+        
+        # Step 2 Control: Click this after visiting the link to reveal the unlock button
+        if not st.session_state.link_visited:
+            if st.button("I've visited the link — Click to Unlock ✅", use_container_width=True):
+                st.session_state.link_visited = True
+                st.rerun()
+        else:
+            # Step 3: Final unlock button with 5s verification timer
+            if st.button("2️⃣ Verify & Unlock Artwork ✨", type="primary", use_container_width=True):
+                with st.spinner("Verifying sponsor visit... Please wait 5 seconds."):
+                    time.sleep(5)
+                st.session_state.is_locked = False
+                st.session_state.link_visited = False
+                st.rerun()
     else:
         with open("temp_art.png", "rb") as file:
             img_bytes = file.read()
