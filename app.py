@@ -13,6 +13,25 @@ st.set_page_config(
 
 PRO_PASSWORD = "UNLIMITED2026"
 
+# 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK / SMARTLINK URL 🔴
+ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
+
+# --- SILENT POPUNDER SCRIPT INJECTOR ---
+popunder_script = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="margin:0; padding:0; background:transparent;">
+    <!-- PASTE YOUR ADSTERRA POPUNDER SCRIPT BELOW IF YOU HAVE ONE -->
+    <script type="text/javascript" src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
+</body>
+</html>
+"""
+# Renders invisibly in the background to catch clicks
+components.html(popunder_script, height=1, width=1)
+
 # --- CUSTOM MODERN CSS STYLING ---
 st.markdown("""
 <style>
@@ -23,7 +42,7 @@ st.markdown("""
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    /* HIDE INSTRUCTION HINTS ("Press Enter to apply") */
+    /* HIDE INSTRUCTION HINTS */
     div[data-testid="stWidgetInstructions"], 
     small[data-testid="stWidgetInstructions"],
     [data-testid="InputInstructions"] {
@@ -109,7 +128,29 @@ st.markdown("""
         background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
     }
 
-    /* --- SIDEBAR STYLING --- */
+    /* High Converting Ad Unlock Button */
+    .ad-unlock-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: #ffffff !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 1rem;
+        border-radius: 14px;
+        text-decoration: none !important;
+        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+        margin: 1rem 0;
+        transition: transform 0.2s ease;
+    }
+
+    .ad-unlock-btn:hover {
+        transform: scale(1.02);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    }
+
+    /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0b0f19 0%, #05070d 100%) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -148,8 +189,8 @@ if "generated_image_bytes" not in st.session_state:
     st.session_state.generated_image_bytes = None
 if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
-if "trigger_ad" not in st.session_state:
-    st.session_state.trigger_ad = False
+if "is_locked" not in st.session_state:
+    st.session_state.is_locked = False
 
 # --- SIDEBAR UI ---
 with st.sidebar:
@@ -195,109 +236,6 @@ with st.sidebar:
             else:
                 st.error("Invalid key.")
         st.markdown('</div>', unsafe_allow_html=True)
-
-# --- FULL-SCREEN AD OVERLAY MODAL ---
-@st.dialog(" ", width="large")
-def show_ad_modal():
-    # Full screen modal styling + 10-second delayed X button animation
-    st.markdown("""
-        <style>
-        div[data-testid="stDialog"] > div {
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            top: 0 !important;
-            left: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            border-radius: 0 !important;
-            background-color: #000000 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: center !important;
-            align-items: center !important;
-            z-index: 999999 !important;
-            overflow: hidden !important;
-        }
-        button[aria-label="Close"] {
-            display: none !important;
-        }
-
-        /* 10-Second Keyframe Animation for 'X' Close Button */
-        @keyframes revealCloseBtn {
-            0% { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.6); }
-            95% { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.6); }
-            100% { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
-        }
-
-        .st-key-close_ad_btn button {
-            position: fixed !important;
-            top: 25px !important;
-            right: 25px !important;
-            z-index: 9999999 !important;
-            width: 46px !important;
-            height: 46px !important;
-            border-radius: 50% !important;
-            background: rgba(255, 255, 255, 0.25) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            color: #ffffff !important;
-            font-size: 22px !important;
-            font-weight: 800 !important;
-            line-height: 1 !important;
-            padding: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
-            animation: revealCloseBtn 10s forwards !important;
-            cursor: pointer !important;
-        }
-
-        .st-key-close_ad_btn button:hover {
-            background: rgba(255, 255, 255, 0.45) !important;
-            transform: scale(1.1) !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # HTML Ad Frame
-    ad_code = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                width: 100vw;
-                height: 100vh;
-                background-color: #000000;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                overflow: hidden;
-            }
-        </style>
-    </head>
-    <body>
-        <script type="text/javascript" src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
-    </body>
-    </html>
-    """
-    components.html(ad_code, height=600, scrolling=False)
-    
-    # Close Button (Appears top-right after 10s)
-    if st.button("✕", key="close_ad_btn"):
-        st.session_state.trigger_ad = False
-        st.rerun()
-
-# --- TRIGGER DIALOG FROM STATE ---
-if st.session_state.trigger_ad:
-    show_ad_modal()
 
 # --- MAIN APP HEADER ---
 st.markdown("""
@@ -345,10 +283,10 @@ if can_generate:
                         
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
-                            st.session_state.trigger_ad = True
-                            st.rerun()
+                            st.session_state.is_locked = True
                         else:
-                            st.rerun()
+                            st.session_state.is_locked = False
+                        st.rerun()
                     else:
                         st.error("Server busy, try again.")
                 except Exception as e:
@@ -370,11 +308,32 @@ else:
 if st.session_state.generated_image_bytes:
     st.write("---")
     st.markdown("### 🖼️ Your Generated Artwork")
-    st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
-    st.download_button(
-        label="📥 Download High-Res Image",
-        data=st.session_state.generated_image_bytes,
-        file_name="pixelforge_artwork.png",
-        mime="image/png",
-        key="download_img_btn"
-    )
+    
+    # If Free user, require 1 click to unlock direct link ad
+    if st.session_state.is_locked:
+        st.markdown("""
+        <div class="card-box" style="text-align: center; border: 1px solid #3b82f6;">
+            <h3 style="margin-top: 0; color: #60a5fa;">🔓 Image Ready To Unlock</h3>
+            <p style="color: #cbd5e1; font-size: 0.95rem;">Tap the button below to view and download your full high-res AI image.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # High CPM Direct Link Button
+        st.markdown(f'''
+            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" class="ad-unlock-btn">
+                🔓 Tap Here to View & Unlock Image
+            </a>
+        ''', unsafe_allow_html=True)
+        
+        if st.button("I Have Unlocked It", key="reveal_img_btn"):
+            st.session_state.is_locked = False
+            st.rerun()
+    else:
+        st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
+        st.download_button(
+            label="📥 Download High-Res Image",
+            data=st.session_state.generated_image_bytes,
+            file_name="pixelforge_artwork.png",
+            mime="image/png",
+            key="download_img_btn"
+        )
