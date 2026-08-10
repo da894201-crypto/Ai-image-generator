@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import urllib.parse
 import requests
 
@@ -13,14 +12,8 @@ st.set_page_config(
 
 PRO_PASSWORD = "UNLIMITED2026"
 
-# 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK 🔴
+# 🔴 REPLACE THIS WITH YOUR ACTIVE ADSTERRA DIRECT LINK 🔴
 ADSTERRA_DIRECT_LINK ="https://www.effectivecpmnetwork.com/vqwptfhf7e?key=387fee6ebf196f7838452f5a26520fb4"
-
-# --- CHECK AUTOMATED UNLOCK PARAMETER ---
-query_params = st.query_params
-if query_params.get("unlocked") == "true":
-    st.session_state.is_locked = False
-    st.query_params.clear()
 
 # --- CUSTOM MODERN CSS STYLING ---
 st.markdown("""
@@ -116,6 +109,28 @@ st.markdown("""
         transform: translateY(-2px) !important;
         box-shadow: 0 12px 25px rgba(99, 102, 241, 0.45) !important;
         background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+    }
+
+    /* Step 1 Ad Button Styling */
+    .ad-step1-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: #ffffff !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 0.95rem;
+        border-radius: 12px;
+        text-decoration: none !important;
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .ad-step1-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     }
 
     /* Sidebar Styling */
@@ -281,44 +296,21 @@ if st.session_state.generated_image_bytes:
         st.markdown("""
         <div class="card-box" style="text-align: center; border: 1px solid #3b82f6;">
             <h3 style="margin-top: 0; color: #60a5fa;">🔓 Image Ready To Unlock</h3>
-            <p style="color: #cbd5e1; font-size: 0.95rem;">Step 2 will unlock automatically after you visit the sponsor link in Step 1.</p>
+            <p style="color: #cbd5e1; font-size: 0.95rem;">Complete both steps below to reveal your generated artwork:</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Enforced 2-Step JS Unlock Box
-                # Enforced 2-Step Unlock Box (CORS & Mobile Pop-up Safe)
-        components.html(
-            f"""
-            <div style="font-family: system-ui, -apple-system, sans-serif; text-align: center;">
-                <button id="ad-btn" onclick="openAd()" 
-                        style="width: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35); margin-bottom: 0.8rem; box-sizing: border-box;">
-                    1️⃣ Tap Here to Visit Sponsor Link
-                </button>
-
-                <a id="reveal-link" href="?unlocked=true" target="_top" 
-                   style="display: block; width: 100%; background: #334155; color: #64748b; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; text-decoration: none; pointer-events: none; cursor: not-allowed; transition: all 0.3s ease; box-sizing: border-box;">
-                    🔒 Step 2: Reveal Artwork (Locked)
-                </a>
-            </div>
-
-            <script>
-                function openAd() {{
-                    // 1. Open sponsor link in a new tab on tap
-                    window.open('{ADSTERRA_DIRECT_LINK}', '_blank');
-                    
-                    // 2. Instantly activate Step 2
-                    var revealBtn = document.getElementById('reveal-link');
-                    revealBtn.style.background = 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
-                    revealBtn.style.color = '#ffffff';
-                    revealBtn.style.pointerEvents = 'auto';
-                    revealBtn.style.cursor = 'pointer';
-                    revealBtn.innerHTML = '2️⃣ Tap to Reveal Artwork ✨';
-                }}
-            </script>
-            """,
-            height=160
-        )
-
+        # Step 1: Open Adsterra link in new tab (Native HTML link)
+        st.markdown(f'''
+            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" class="ad-step1-btn">
+                1️⃣ Tap Here to Visit Sponsor Link 🔗
+            </a>
+        ''', unsafe_allow_html=True)
+        
+        # Step 2: Native Streamlit Button (Unlocks image state without page reload)
+        if st.button("2️⃣ Reveal Generated Artwork ✨", key="native_reveal_btn"):
+            st.session_state.is_locked = False
+            st.rerun()
 
     else:
         st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
