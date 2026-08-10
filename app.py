@@ -218,7 +218,6 @@ if os.path.exists("temp_art.png"):
                 file_name="pixelforge_artwork.png",
                 mime="image/png"
             )
-    }
     .header-box {
         text-align: center;
         padding: 2.2rem 1.2rem 1.2rem 1.2rem;
@@ -227,7 +226,7 @@ if os.path.exists("temp_art.png"):
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         margin-bottom: 1.8rem;
-    }
+   }
     .header-title {
         font-size: 2.5rem;
         font-weight: 800;
