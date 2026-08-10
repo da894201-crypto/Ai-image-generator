@@ -296,6 +296,101 @@ def show_ad_modal():
             top: 0 !important;
             left: 0 !important;
             margin: 0 !important;
+import streamlit as st
+import streamlit.components.v1 as components
+import urllib.parse
+import requests
+import time
+
+# --- PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="PixelForge AI - Instant Art Generator",
+    page_icon="🎨",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
+PRO_PASSWORD = "UNLIMITED2026"
+
+# --- CUSTOM CSS STYLING ---
+st.markdown("""
+<style>
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        color: #f8fafc;
+    }
+    .header-box {
+        text-align: center;
+        padding: 2rem 1rem 1rem 1rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 2rem;
+    }
+    .card-box {
+        background: rgba(30, 41, 59, 0.7);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        margin-bottom: 1.5rem;
+    }
+    .stButton > button {
+        width: 100%;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: #0b0f19;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- SESSION STATE ---
+if "generations_left" not in st.session_state:
+    st.session_state.generations_left = 3
+if "is_pro" not in st.session_state:
+    st.session_state.is_pro = False
+if "generated_image_bytes" not in st.session_state:
+    st.session_state.generated_image_bytes = None
+if "current_caption" not in st.session_state:
+    st.session_state.current_caption = ""
+
+# --- SIDEBAR ---
+with st.sidebar:
+    st.image("https://img.icons8.com/3d-fluency/94/sparkles.png", width=60)
+    st.title("PixelForge Pro")
+    
+    if st.session_state.is_pro:
+        st.success("🌟 **Pro Active** (Unlimited & No Ads)")
+    else:
+        st.info(f"⚡ Free Credits: **{st.session_state.generations_left} remaining**")
+        st.write("---")
+        st.subheader("🔑 Unlock Pro Access")
+        passcode_input = st.text_input("Enter Passcode:", type="password", key="sidebar_passcode_input")
+        if st.button("Activate Passcode", key="sidebar_passcode_btn"):
+            if passcode_input == PRO_PASSWORD:
+                st.session_state.is_pro = True
+                st.success("Pro status unlocked!")
+                st.rerun()
+            else:
+                st.error("Invalid key.")
+
+# --- FULL-SCREEN AD OVERLAY MODAL ---
+@st.dialog(" ", width="large")
+def show_ad_modal():
+    st.markdown("""
+        <style>
+        div[data-testid="stDialog"] > div {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            top: 0 !important;
+            left: 0 !important;
+            margin: 0 !important;
             border-radius: 0 !important;
             background-color: #000000 !important;
             display: flex;
@@ -343,19 +438,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="card-box">', unsafe_allow_html=True)
-prompt = st.text_input("Prompt:", placeholder="e.g., A cybernetic samurai in cyberpunk Tokyo, 8k resolution")
+prompt = st.text_input("Prompt:", placeholder="e.g., A cybernetic samurai in cyberpunk Tokyo, 8k resolution", key="main_prompt_input")
 col1, col2 = st.columns(2)
 with col1:
-    style = st.selectbox("Art Style:", ["None", "Cyberpunk", "Anime", "Photorealistic", "Digital Painting", "3D Render", "Fantasy"])
+    style = st.selectbox("Art Style:", ["None", "Cyberpunk", "Anime", "Photorealistic", "Digital Painting", "3D Render", "Fantasy"], key="main_style_select")
 with col2:
-    aspect_ratio = st.selectbox("Aspect Ratio:", ["Square (1:1)", "Portrait (3:4)", "Landscape (16:9)"])
+    aspect_ratio = st.selectbox("Aspect Ratio:", ["Square (1:1)", "Portrait (3:4)", "Landscape (16:9)"], key="main_aspect_select")
 st.markdown('</div>', unsafe_allow_html=True)
 
 can_generate = st.session_state.is_pro or st.session_state.generations_left > 0
 
 # --- GENERATION LOGIC ---
 if can_generate:
-    if st.button("✨ Generate Artwork", type="primary"):
+    if st.button("✨ Generate Artwork", type="primary", key="generate_art_btn"):
         if prompt.strip():
             with st.spinner("Rendering your artwork..."):
                 full_prompt = prompt if style == "None" else f"{prompt}, {style} style"
@@ -407,5 +502,6 @@ if st.session_state.generated_image_bytes:
         label="📥 Download High-Res Image",
         data=st.session_state.generated_image_bytes,
         file_name="pixelforge_artwork.png",
-        mime="image/png"
+        mime="image/png",
+        key="download_img_btn"
     )
