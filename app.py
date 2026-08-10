@@ -16,21 +16,12 @@ PRO_PASSWORD = "UNLIMITED2026"
 # 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK / SMARTLINK URL 🔴
 ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
 
-# --- SILENT POPUNDER SCRIPT INJECTOR ---
-popunder_script = """
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-</head>
-<body style="margin:0; padding:0; background:transparent;">
-    <!-- PASTE YOUR ADSTERRA POPUNDER SCRIPT BELOW IF YOU HAVE ONE -->
-    <script type="text/javascript" src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
-</body>
-</html>
-"""
-# Renders invisibly in the background to catch clicks
-components.html(popunder_script, height=1, width=1)
+# --- CHECK AUTOMATED UNLOCK QUERY PARAMETER ---
+query_params = st.query_params
+if query_params.get("unlocked") == "true":
+    st.session_state.is_locked = False
+    # Clean up URL parameters
+    st.query_params.clear()
 
 # --- CUSTOM MODERN CSS STYLING ---
 st.markdown("""
@@ -136,13 +127,14 @@ st.markdown("""
         background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         color: #ffffff !important;
         font-weight: 800;
-        font-size: 1.1rem;
-        padding: 1rem;
+        font-size: 1.15rem;
+        padding: 1.1rem;
         border-radius: 14px;
         text-decoration: none !important;
         box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
         margin: 1rem 0;
         transition: transform 0.2s ease;
+        cursor: pointer;
     }
 
     .ad-unlock-btn:hover {
@@ -309,7 +301,7 @@ if st.session_state.generated_image_bytes:
     st.write("---")
     st.markdown("### 🖼️ Your Generated Artwork")
     
-    # If Free user, require 1 click to unlock direct link ad
+    # Force single-click ad redirect that automatically unlocks image on tap
     if st.session_state.is_locked:
         st.markdown("""
         <div class="card-box" style="text-align: center; border: 1px solid #3b82f6;">
@@ -318,16 +310,14 @@ if st.session_state.generated_image_bytes:
         </div>
         """, unsafe_allow_html=True)
         
-        # High CPM Direct Link Button
+        # JS Onclick: Opens ad in new tab AND reloads current app with ?unlocked=true parameter
         st.markdown(f'''
-            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" class="ad-unlock-btn">
-                🔓 Tap Here to View & Unlock Image
+            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" 
+               onclick="window.parent.location.href = window.parent.location.pathname + '?unlocked=true';" 
+               class="ad-unlock-btn">
+                🔓 Tap to View & Unlock Image
             </a>
         ''', unsafe_allow_html=True)
-        
-        if st.button("I Have Unlocked It", key="reveal_img_btn"):
-            st.session_state.is_locked = False
-            st.rerun()
     else:
         st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
         st.download_button(
