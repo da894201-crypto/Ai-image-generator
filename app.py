@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import urllib.parse
 import requests
 
@@ -13,7 +12,7 @@ st.set_page_config(
 
 PRO_PASSWORD = "UNLIMITED2026"
 
-# 🔴 PASTE YOUR ACTUAL ADSTERRA DIRECT LINK / SMARTLINK HERE 🔴
+# 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK 🔴
 ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
 
 # --- CUSTOM MODERN CSS STYLING ---
@@ -26,7 +25,7 @@ st.markdown("""
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    /* HIDE INSTRUCTION HINTS */
+    /* Hide Instruction Hints */
     div[data-testid="stWidgetInstructions"], 
     small[data-testid="stWidgetInstructions"],
     [data-testid="InputInstructions"] {
@@ -112,16 +111,26 @@ st.markdown("""
         background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
     }
 
-    /* High Converting Ad Unlock Button Style Override */
-    .st-key-unlock_ad_btn button {
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
-        font-size: 1.1rem !important;
-        padding: 1rem !important;
-        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4) !important;
+    /* Styled Direct HTML Ad Button */
+    .ad-link-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: #ffffff !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 0.9rem;
+        border-radius: 12px;
+        text-decoration: none !important;
+        box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+        margin-bottom: 0.8rem;
+        transition: transform 0.2s ease;
     }
 
-    .st-key-unlock_ad_btn button:hover {
-        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    .ad-link-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     }
 
     /* Sidebar Styling */
@@ -165,8 +174,6 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
-if "trigger_ad_popup" not in st.session_state:
-    st.session_state.trigger_ad_popup = False
 
 # --- SIDEBAR UI ---
 with st.sidebar:
@@ -289,30 +296,23 @@ if st.session_state.generated_image_bytes:
         st.markdown("""
         <div class="card-box" style="text-align: center; border: 1px solid #3b82f6;">
             <h3 style="margin-top: 0; color: #60a5fa;">🔓 Image Ready To Unlock</h3>
-            <p style="color: #cbd5e1; font-size: 0.95rem;">Tap the button below to open sponsor offer and unlock your full image.</p>
+            <p style="color: #cbd5e1; font-size: 0.95rem;">Follow the two quick steps below to view your full image:</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Native Streamlit Button: Opens ad tab and unlocks image in Python state simultaneously
-        if st.button("🔓 Tap to View & Unlock Image", key="unlock_ad_btn"):
+        # Step 1: Direct HTML Link (Bypasses popup blockers completely)
+        st.markdown(f'''
+            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" class="ad-link-btn">
+                1️⃣ Tap Here to Visit Sponsor Link
+            </a>
+        ''', unsafe_allow_html=True)
+        
+        # Step 2: Instant Reveal Button
+        if st.button("2️⃣ Tap Here to Reveal Artwork", key="reveal_art_btn"):
             st.session_state.is_locked = False
-            st.session_state.trigger_ad_popup = True
             st.rerun()
 
     else:
-        # If triggered, open the ad in a new tab upon unlock
-        if st.session_state.trigger_ad_popup:
-            components.html(
-                f"""
-                <script>
-                    window.open('{ADSTERRA_DIRECT_LINK}', '_blank');
-                </script>
-                """,
-                height=1,
-                width=1
-            )
-            st.session_state.trigger_ad_popup = False
-
         st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
         st.download_button(
             label="📥 Download High-Res Image",
