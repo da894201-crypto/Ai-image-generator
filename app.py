@@ -13,15 +13,8 @@ st.set_page_config(
 
 PRO_PASSWORD = "UNLIMITED2026"
 
-# 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK / SMARTLINK URL 🔴
-ADSTERRA_DIRECT_LINK = "https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"
-
-# --- CHECK AUTOMATED UNLOCK QUERY PARAMETER ---
-query_params = st.query_params
-if query_params.get("unlocked") == "true":
-    st.session_state.is_locked = False
-    # Clean up URL parameters
-    st.query_params.clear()
+# 🔴 PASTE YOUR ACTUAL ADSTERRA DIRECT LINK / SMARTLINK HERE 🔴
+ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
 
 # --- CUSTOM MODERN CSS STYLING ---
 st.markdown("""
@@ -119,27 +112,16 @@ st.markdown("""
         background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
     }
 
-    /* High Converting Ad Unlock Button */
-    .ad-unlock-btn {
-        display: block;
-        width: 100%;
-        text-align: center;
-        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-        color: #ffffff !important;
-        font-weight: 800;
-        font-size: 1.15rem;
-        padding: 1.1rem;
-        border-radius: 14px;
-        text-decoration: none !important;
-        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
-        margin: 1rem 0;
-        transition: transform 0.2s ease;
-        cursor: pointer;
+    /* High Converting Ad Unlock Button Style Override */
+    .st-key-unlock_ad_btn button {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+        font-size: 1.1rem !important;
+        padding: 1rem !important;
+        box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4) !important;
     }
 
-    .ad-unlock-btn:hover {
-        transform: scale(1.02);
-        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    .st-key-unlock_ad_btn button:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
     }
 
     /* Sidebar Styling */
@@ -183,6 +165,8 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
+if "trigger_ad_popup" not in st.session_state:
+    st.session_state.trigger_ad_popup = False
 
 # --- SIDEBAR UI ---
 with st.sidebar:
@@ -301,24 +285,34 @@ if st.session_state.generated_image_bytes:
     st.write("---")
     st.markdown("### 🖼️ Your Generated Artwork")
     
-    # Force single-click ad redirect that automatically unlocks image on tap
     if st.session_state.is_locked:
         st.markdown("""
         <div class="card-box" style="text-align: center; border: 1px solid #3b82f6;">
             <h3 style="margin-top: 0; color: #60a5fa;">🔓 Image Ready To Unlock</h3>
-            <p style="color: #cbd5e1; font-size: 0.95rem;">Tap the button below to view and download your full high-res AI image.</p>
+            <p style="color: #cbd5e1; font-size: 0.95rem;">Tap the button below to open sponsor offer and unlock your full image.</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # JS Onclick: Opens ad in new tab AND reloads current app with ?unlocked=true parameter
-        st.markdown(f'''
-            <a href="{ADSTERRA_DIRECT_LINK}" target="_blank" 
-               onclick="window.parent.location.href = window.parent.location.pathname + '?unlocked=true';" 
-               class="ad-unlock-btn">
-                🔓 Tap to View & Unlock Image
-            </a>
-        ''', unsafe_allow_html=True)
+        # Native Streamlit Button: Opens ad tab and unlocks image in Python state simultaneously
+        if st.button("🔓 Tap to View & Unlock Image", key="unlock_ad_btn"):
+            st.session_state.is_locked = False
+            st.session_state.trigger_ad_popup = True
+            st.rerun()
+
     else:
+        # If triggered, open the ad in a new tab upon unlock
+        if st.session_state.trigger_ad_popup:
+            components.html(
+                f"""
+                <script>
+                    window.open('{ADSTERRA_DIRECT_LINK}', '_blank');
+                </script>
+                """,
+                height=1,
+                width=1
+            )
+            st.session_state.trigger_ad_popup = False
+
         st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
         st.download_button(
             label="📥 Download High-Res Image",
