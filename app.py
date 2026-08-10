@@ -98,48 +98,18 @@ if os.path.exists("temp_art.png"):
     st.subheader("🖼️ Your Generated Artwork")
     
     if st.session_state.is_locked:
-        st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
+        st.info("🔓 **Image Locked:** Tap the button below to view the sponsor link and instantly unlock your image:")
         
-        ad_locker_html = """
+        single_button_html = """
         <div style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 10px;">
-            <a id="step1-btn" href="REPLACE_LINK" target="_blank" onclick="startUnlock()"
-               style="display: block; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; box-sizing: border-box; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);">
-                1️⃣ Tap Here to Visit Sponsor Link 🔗
+            <a href="?unlocked=true" onclick="window.open('REPLACE_LINK', '_blank');"
+               style="display: block; width: 100%; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 17px; box-sizing: border-box; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);">
+                🔓 Tap Here to Support & Unlock Image ✨
             </a>
-
-            <div id="step2-container" style="display: none;">
-                <a id="step2-btn" href="?unlocked=true" target="_parent"
-                   style="display: block; width: 100%; background: #334155; color: #64748b; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; box-sizing: border-box; pointer-events: none;">
-                    ⏳ Please wait 5 seconds...
-                </a>
-            </div>
         </div>
-
-        <script>
-            function startUnlock() {
-                var container = document.getElementById('step2-container');
-                var btn2 = document.getElementById('step2-btn');
-                container.style.display = 'block';
-                
-                var countdown = 5;
-                var timer = setInterval(function() {
-                    countdown--;
-                    if (countdown > 0) {
-                        btn2.innerHTML = '⏳ Please wait ' + countdown + ' seconds...';
-                    } else {
-                        clearInterval(timer);
-                        btn2.innerHTML = '2️⃣ Verify & Unlock Artwork ✨';
-                        btn2.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)';
-                        btn2.style.color = '#ffffff';
-                        btn2.style.pointerEvents = 'auto';
-                        btn2.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
-                    }
-                }, 1000);
-            }
-        </script>
         """.replace("REPLACE_LINK", ADSTERRA_DIRECT_LINK)
 
-        components.html(ad_locker_html, height=160)
+        components.html(single_button_html, height=90)
     else:
         with open("temp_art.png", "rb") as file:
             img_bytes = file.read()
