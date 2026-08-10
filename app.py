@@ -223,7 +223,7 @@ if os.path.exists("temp_art.png"):
                 file_name="pixelforge_artwork.png",
                 mime="image/png"
             )
-    }
+    
     .header-box {
         text-align: center;
         padding: 2.2rem 1.2rem 1.2rem 1.2rem;
