@@ -2,7 +2,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 import urllib.parse
 import requests
-import time
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -200,6 +199,7 @@ with st.sidebar:
 # --- FULL-SCREEN AD OVERLAY MODAL ---
 @st.dialog(" ", width="large")
 def show_ad_modal():
+    # Full screen modal styling + 10-second delayed X button animation
     st.markdown("""
         <style>
         div[data-testid="stDialog"] > div {
@@ -210,31 +210,77 @@ def show_ad_modal():
             top: 0 !important;
             left: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
             border-radius: 0 !important;
             background-color: #000000 !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
             z-index: 999999 !important;
+            overflow: hidden !important;
         }
         button[aria-label="Close"] {
             display: none !important;
         }
+
+        /* 10-Second Keyframe Animation for 'X' Close Button */
+        @keyframes revealCloseBtn {
+            0% { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.6); }
+            95% { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.6); }
+            100% { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
+        }
+
+        .st-key-close_ad_btn button {
+            position: fixed !important;
+            top: 25px !important;
+            right: 25px !important;
+            z-index: 9999999 !important;
+            width: 46px !important;
+            height: 46px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            color: #ffffff !important;
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+            animation: revealCloseBtn 10s forwards !important;
+            cursor: pointer !important;
+        }
+
+        .st-key-close_ad_btn button:hover {
+            background: rgba(255, 255, 255, 0.45) !important;
+            transform: scale(1.1) !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h2 style='text-align: center; color: #ff4b4b; margin-bottom: 5px;'>📺 SPONSORED AD BREAK</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #94a3b8;'>Your high-resolution AI image is generating in the background...</p>", unsafe_allow_html=True)
-    
-    # Properly wrapped HTML document for strict ad-network scripts inside iframes
+    # HTML Ad Frame
     ad_code = """
     <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { margin: 0; padding: 0; background-color: transparent; text-align: center; }
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                height: 100vh;
+                background-color: #000000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
         </style>
     </head>
     <body>
@@ -242,20 +288,12 @@ def show_ad_modal():
     </body>
     </html>
     """
-    components.html(ad_code, height=310, scrolling=False)
+    components.html(ad_code, height=600, scrolling=False)
     
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
-    wait_time = 10
-    for i in range(wait_time):
-        time.sleep(1)
-        progress = int(((i + 1) / wait_time) * 100)
-        progress_bar.progress(progress)
-        status_text.markdown(f"<h3 style='text-align: center; color: #38bdf8; margin-top: 10px;'>⏳ Unlocking in {wait_time - (i + 1)}s...</h3>", unsafe_allow_html=True)
-    
-    st.session_state.trigger_ad = False
-    st.rerun()
+    # Close Button (Appears top-right after 10s)
+    if st.button("✕", key="close_ad_btn"):
+        st.session_state.trigger_ad = False
+        st.rerun()
 
 # --- TRIGGER DIALOG FROM STATE ---
 if st.session_state.trigger_ad:
