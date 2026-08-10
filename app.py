@@ -23,8 +23,8 @@ if "current_caption" not in st.session_state:
     st.session_state.current_caption = ""
 if "is_locked" not in st.session_state:
     st.session_state.is_locked = False
-if "link_clicked" not in st.session_state:
-    st.session_state.link_clicked = False
+if "reveal_verify" not in st.session_state:
+    st.session_state.reveal_verify = False
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -79,7 +79,7 @@ if can_generate:
                         if not st.session_state.is_pro:
                             st.session_state.generations_left -= 1
                             st.session_state.is_locked = True
-                            st.session_state.link_clicked = False
+                            st.session_state.reveal_verify = False
                         st.rerun()
                     else:
                         st.error("Server busy, please try clicking generate again.")
@@ -98,22 +98,24 @@ if os.path.exists("temp_art.png"):
     if st.session_state.is_locked:
         st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
         
-        # Step 1: Direct link button taking them straight to the sponsor URL
+        # Step 1: Direct link button to open the sponsor page
         st.link_button("1️⃣ Tap Here to Visit Sponsor Link 🔗", ADSTERRA_DIRECT_LINK, use_container_width=True)
         
         st.write("")
         
-        # Step 2 Appears after they return and click this button
-        if not st.session_state.link_clicked:
-            if st.button("I've visited the link — Show Unlock Button 🔓", use_container_width=True):
-                st.session_state.link_clicked = True
+        # Intermediate button: Clicking this makes the final verify button appear
+        if not st.session_state.reveal_verify:
+            if st.button("I've visited the link — Click to Continue ✅", use_container_width=True):
+                st.session_state.reveal_verify = True
                 st.rerun()
-        else:
+        
+        # Final Verify Button (Invisible until the step above is completed)
+        if st.session_state.reveal_verify:
             if st.button("2️⃣ Verify & Unlock Artwork ✨", type="primary", use_container_width=True):
                 with st.spinner("Verifying sponsor visit... Please wait 5 seconds."):
                     time.sleep(5)
                 st.session_state.is_locked = False
-                st.session_state.link_clicked = False
+                st.session_state.reveal_verify = False
                 st.rerun()
     else:
         with open("temp_art.png", "rb") as file:
