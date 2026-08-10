@@ -422,6 +422,133 @@ def show_ad_modal():
     for i in range(wait_time):
         time.sleep(1)
         progress = int(((i + 1) / wait_time) * 100)
+import streamlit as st
+import streamlit.components.v1 as components
+import urllib.parse
+import requests
+import time
+
+# --- PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="PixelForge AI - Instant Art Generator",
+    page_icon="🎨",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
+PRO_PASSWORD = "UNLIMITED2026"
+
+# --- CUSTOM CSS STYLING ---
+# Ensure the triple quotes (""") stay intact so Python knows this is CSS!
+st.markdown("""
+<style>
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        color: #f8fafc;
+    }
+    .header-box {
+        text-align: center;
+        padding: 2rem 1rem 1rem 1rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 2rem;
+    }
+    .card-box {
+        background: rgba(30, 41, 59, 0.7);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        margin-bottom: 1.5rem;
+    }
+    .stButton > button {
+        width: 100%;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: #0b0f19;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# --- SESSION STATE ---
+if "generations_left" not in st.session_state:
+    st.session_state.generations_left = 3
+if "is_pro" not in st.session_state:
+    st.session_state.is_pro = False
+if "generated_image_bytes" not in st.session_state:
+    st.session_state.generated_image_bytes = None
+if "current_caption" not in st.session_state:
+    st.session_state.current_caption = ""
+
+# --- SIDEBAR ---
+with st.sidebar:
+    st.image("https://img.icons8.com/3d-fluency/94/sparkles.png", width=60)
+    st.title("PixelForge Pro")
+    
+    if st.session_state.is_pro:
+        st.success("🌟 **Pro Active** (Unlimited & No Ads)")
+    else:
+        st.info(f"⚡ Free Credits: **{st.session_state.generations_left} remaining**")
+        st.write("---")
+        st.subheader("🔑 Unlock Pro Access")
+        passcode_input = st.text_input("Enter Passcode:", type="password", key="sidebar_passcode_input")
+        if st.button("Activate Passcode", key="sidebar_passcode_btn"):
+            if passcode_input == PRO_PASSWORD:
+                st.session_state.is_pro = True
+                st.success("Pro status unlocked!")
+                st.rerun()
+            else:
+                st.error("Invalid key.")
+
+# --- FULL-SCREEN AD OVERLAY MODAL ---
+@st.dialog(" ", width="large")
+def show_ad_modal():
+    st.markdown("""
+        <style>
+        div[data-testid="stDialog"] > div {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            top: 0 !important;
+            left: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            background-color: #000000 !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999 !important;
+        }
+        button[aria-label="Close"] {
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<h2 style='text-align: center; color: #ff4b4b; margin-bottom: 5px;'>📺 SPONSORED AD BREAK</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #94a3b8;'>Your high-resolution AI image is generating in the background...</p>", unsafe_allow_html=True)
+    
+    ad_code = """
+    <div style="text-align:center; padding: 20px;">
+        <script src="https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"></script>
+    </div>
+    """
+    components.html(ad_code, height=300)
+    
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    wait_time = 10
+    for i in range(wait_time):
+        time.sleep(1)
+        progress = int(((i + 1) / wait_time) * 100)
         progress_bar.progress(progress)
         status_text.markdown(f"<h3 style='text-align: center; color: #38bdf8; margin-top: 10px;'>⏳ Unlocking in {wait_time - (i + 1)}s...</h3>", unsafe_allow_html=True)
     
