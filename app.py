@@ -286,37 +286,39 @@ if st.session_state.generated_image_bytes:
         """, unsafe_allow_html=True)
         
         # Enforced 2-Step JS Unlock Box
+                # Enforced 2-Step Unlock Box (CORS & Mobile Pop-up Safe)
         components.html(
             f"""
             <div style="font-family: system-ui, -apple-system, sans-serif; text-align: center;">
-                <a id="ad-link" href="{ADSTERRA_DIRECT_LINK}" target="_blank" onclick="enableReveal()" 
-                   style="display: block; width: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; text-decoration: none; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35); margin-bottom: 0.8rem; box-sizing: border-box;">
+                <button id="ad-btn" onclick="openAd()" 
+                        style="width: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; border: none; cursor: pointer; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35); margin-bottom: 0.8rem; box-sizing: border-box;">
                     1️⃣ Tap Here to Visit Sponsor Link
-                </a>
-
-                <button id="reveal-btn" disabled onclick="unlockApp()" 
-                        style="display: block; width: 100%; background: #334155; color: #64748b; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; border: none; cursor: not-allowed; transition: all 0.3s ease; box-sizing: border-box;">
-                    🔒 Step 2: Reveal Artwork (Locked)
                 </button>
+
+                <a id="reveal-link" href="?unlocked=true" target="_top" 
+                   style="display: block; width: 100%; background: #334155; color: #64748b; font-weight: 800; font-size: 1.1rem; padding: 1rem; border-radius: 12px; text-decoration: none; pointer-events: none; cursor: not-allowed; transition: all 0.3s ease; box-sizing: border-box;">
+                    🔒 Step 2: Reveal Artwork (Locked)
+                </a>
             </div>
 
             <script>
-                function enableReveal() {{
-                    var btn = document.getElementById('reveal-btn');
-                    btn.disabled = false;
-                    btn.style.background = 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
-                    btn.style.color = '#ffffff';
-                    btn.style.cursor = 'pointer';
-                    btn.innerHTML = '2️⃣ Tap to Reveal Artwork ✨';
-                }}
-
-                function unlockApp() {{
-                    window.parent.location.search = '?unlocked=true';
+                function openAd() {{
+                    // 1. Open sponsor link in a new tab on tap
+                    window.open('{ADSTERRA_DIRECT_LINK}', '_blank');
+                    
+                    // 2. Instantly activate Step 2
+                    var revealBtn = document.getElementById('reveal-link');
+                    revealBtn.style.background = 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
+                    revealBtn.style.color = '#ffffff';
+                    revealBtn.style.pointerEvents = 'auto';
+                    revealBtn.style.cursor = 'pointer';
+                    revealBtn.innerHTML = '2️⃣ Tap to Reveal Artwork ✨';
                 }}
             </script>
             """,
             height=160
         )
+
 
     else:
         st.image(st.session_state.generated_image_bytes, caption=st.session_state.current_caption, use_container_width=True)
