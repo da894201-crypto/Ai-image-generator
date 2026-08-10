@@ -257,7 +257,7 @@ if can_generate:
                         st.rerun()
                     else:
                         st.error("Server busy, try again.")
-                e xcept Exception as e:
+                except Exception as e:
                     st.error(f"Error: {e}")
         else:
             st.warning("Please type a description first!")
