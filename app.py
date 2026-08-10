@@ -2,6 +2,7 @@ import streamlit as st
 import urllib.parse
 import requests
 import os
+import time
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -52,7 +53,7 @@ can_generate = st.session_state.is_pro or st.session_state.generations_left > 0
 if can_generate:
     if st.button("✨ Generate Artwork", type="primary"):
         if prompt.strip():
-            with st.spinner("Rendering artwork..."):
+            with st.spinner("Rendering artwork (this can take up to a minute)..."):
                 full_prompt = prompt if style == "None" else f"{prompt}, {style} style"
                 encoded_prompt = urllib.parse.quote(full_prompt)
                 
@@ -66,7 +67,8 @@ if can_generate:
                 headers = {"User-Agent": "Mozilla/5.0"}
                 
                 try:
-                    response = requests.get(image_url, headers=headers, timeout=30)
+                    # Increased timeout to 60 seconds to prevent dropouts
+                    response = requests.get(image_url, headers=headers, timeout=60)
                     if response.status_code == 200:
                         with open("temp_art.png", "wb") as f:
                             f.write(response.content)
@@ -78,7 +80,9 @@ if can_generate:
                             st.session_state.is_locked = True
                         st.rerun()
                     else:
-                        st.error("Server busy, please try again.")
+                        st.error("Server busy, please try clicking generate again.")
+                except requests.exceptions.Timeout:
+                    st.error("The image generation server took too long to respond. Please try clicking generate again.")
                 except Exception as e:
                     st.error(f"Error: {e}")
         else:
@@ -92,11 +96,13 @@ if os.path.exists("temp_art.png"):
     if st.session_state.is_locked:
         st.info("🔓 **Image Locked:** Complete the steps below to unlock your creation:")
         
-        # Native Streamlit link button (no HTML/JS required)
         st.link_button("1️⃣ Tap Here to Visit Sponsor Link", ADSTERRA_DIRECT_LINK, use_container_width=True)
         
         st.write("")
-        if st.button("2️⃣ Click Here to Reveal Artwork ✨", type="primary", use_container_width=True):
+        
+        if st.button("2️⃣ Click Here After Visiting Link ✨", type="primary", use_container_width=True):
+            with st.spinner("Verifying sponsor visit... Please wait 5 seconds."):
+                time.sleep(5)
             st.session_state.is_locked = False
             st.rerun()
     else:
