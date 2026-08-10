@@ -14,7 +14,7 @@ st.set_page_config(
 PRO_PASSWORD = "UNLIMITED2026"
 
 # 🔴 REPLACE THIS WITH YOUR ADSTERRA DIRECT LINK / SMARTLINK URL 🔴
-ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/1e3820839b36df037dab169eee1f0358"
+ADSTERRA_DIRECT_LINK = "https://pl30779296.effectivecpmnetwork.com/1e/38/20/1e3820839b36df037dab169eee1f0358.js"
 
 # --- CHECK AUTOMATED UNLOCK QUERY PARAMETER ---
 query_params = st.query_params
