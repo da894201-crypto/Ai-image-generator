@@ -14,36 +14,103 @@ st.set_page_config(
 
 PRO_PASSWORD = "UNLIMITED2026"
 
-# --- CUSTOM CSS STYLING ---
-# Ensure the triple quotes (""") stay intact so Python knows this is CSS!
+# --- CUSTOM MODERN CSS STYLING ---
 st.markdown("""
 <style>
+    /* Premium Background */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 60%, #090d16 100%);
         color: #f8fafc;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
+
+    /* HIDE "Press Enter to apply" INSTRUCTION HINTS */
+    div[data-testid="stWidgetInstructions"], 
+    small[data-testid="stWidgetInstructions"],
+    [data-testid="InputInstructions"] {
+        display: none !important;
+    }
+
+    /* Header Styling */
     .header-box {
         text-align: center;
-        padding: 2rem 1rem 1rem 1rem;
-        border-radius: 16px;
+        padding: 2.2rem 1.2rem 1.2rem 1.2rem;
+        border-radius: 20px;
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 2rem;
-    }
-    .card-box {
-        background: rgba(30, 41, 59, 0.7);
-        padding: 1.5rem;
-        border-radius: 16px;
+        backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        margin-bottom: 1.8rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #38bdf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.3rem;
+    }
+
+    /* Glassmorphism Card Container */
+    .card-box {
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(16px);
+        padding: 1.6rem;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
         margin-bottom: 1.5rem;
     }
+
+    /* Styled Input Fields & Dropdowns */
+    div[data-baseweb="input"] {
+        background-color: rgba(15, 23, 42, 0.7) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+    }
+
+    div[data-baseweb="input"]:focus-within {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        background-color: rgba(15, 23, 42, 0.7) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+    }
+
+    /* Field Labels */
+    label {
+        font-weight: 600 !important;
+        letter-spacing: 0.3px;
+        color: #cbd5e1 !important;
+    }
+
+    /* Modern Gradient Action Button */
     .stButton > button {
         width: 100%;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 16px;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        padding: 0.8rem 1.5rem !important;
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35) !important;
+        transition: all 0.2s ease-in-out !important;
     }
+
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 25px rgba(99, 102, 241, 0.5) !important;
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+    }
+
+    /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #0b0f19;
         border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -51,7 +118,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- SESSION STATE ---
+# --- SESSION STATE INITIALIZATION ---
 if "generations_left" not in st.session_state:
     st.session_state.generations_left = 3
 if "is_pro" not in st.session_state:
@@ -63,7 +130,7 @@ if "current_caption" not in st.session_state:
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://img.icons8.com/3d-fluency/94/sparkles.png", width=60)
+    st.image("https://img.icons8.com/3d-fluency/94/sparkles.png", width=55)
     st.title("PixelForge Pro")
     
     if st.session_state.is_pro:
@@ -132,16 +199,18 @@ def show_ad_modal():
     progress_bar.empty()
     st.rerun()
 
-# --- MAIN APP UI ---
+# --- MAIN APP HEADER ---
 st.markdown("""
 <div class="header-box">
-    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎨 PixelForge AI</h1>
-    <p style="color: #94a3b8; font-size: 1.1rem;">Transform text prompts into stunning artwork in seconds</p>
+    <div class="header-title">🎨 PixelForge AI</div>
+    <p style="color: #94a3b8; font-size: 1.05rem; margin: 0;">Transform text prompts into stunning artwork in seconds</p>
 </div>
 """, unsafe_allow_html=True)
 
+# --- MAIN INPUT CARD ---
 st.markdown('<div class="card-box">', unsafe_allow_html=True)
 prompt = st.text_input("Prompt:", placeholder="e.g., A cybernetic samurai in cyberpunk Tokyo, 8k resolution", key="main_prompt_input")
+
 col1, col2 = st.columns(2)
 with col1:
     style = st.selectbox("Art Style:", ["None", "Cyberpunk", "Anime", "Photorealistic", "Digital Painting", "3D Render", "Fantasy"], key="main_style_select")
@@ -188,8 +257,8 @@ if can_generate:
 
 else:
     st.markdown("""
-    <div class="card-box" style="border: 2px solid #ef4444; text-align: center;">
-        <h2 style="color: #ef4444;">🔒 Free Credits Exhausted</h2>
+    <div class="card-box" style="border: 1px solid #ef4444; text-align: center;">
+        <h2 style="color: #ef4444; margin-top: 0;">🔒 Free Credits Exhausted</h2>
         <p style="color: #cbd5e1;">You've used all 3 free image generations.</p>
         <p>Subscribe to Pro for <b>instant generations</b>, <b>zero ad breaks</b>, and <b>unlimited high-res downloads</b>.</p>
     </div>
